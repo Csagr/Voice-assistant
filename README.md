@@ -1,26 +1,26 @@
 # James, a voice assistant for Christopher Sagris
 
-A static site (no server, no API keys) where visitors can ask James questions about Christopher out loud or by typing. James answers from Christopher's CV in a deep, American-accented male voice.
+Visitors ask James about Christopher out loud or by typing. James answers from Christopher's CV in a natural Gemini voice, and falls back to the browser's own voice if Gemini is unavailable.
 
 ## Files
-- `index.html` – the page
-- `style.css` – cream background, Newsreader serif type
-- `script.js` – listening, answers and speech. Edit the CV facts and answers at the top of this file.
+- `index.html`: the page
+- `style.css`: cream background, Newsreader serif type
+- `answers.js`: everything James knows and says. Update this when the CV changes.
+- `script.js`: listening, matching questions to answers, playing the voice
+- `api/tts.js`: Vercel function that gets James's voice from Gemini and keeps the API key secret
+- `vercel.json`: gives the voice function enough time to run
 
-## Deploy to GitHub Pages
-1. Create a repository and put these files in its root.
-2. Push:
-   ```
-   git add .
-   git commit -m "James voice assistant"
-   git push origin main
-   ```
-3. On GitHub: Settings → Pages → Source: Deploy from a branch, Branch `main`, folder `/ (root)` → Save.
-4. After about a minute the site is live at `https://<username>.github.io/<repository-name>/`.
+## Gemini voice setup (Vercel)
+1. In Vercel, open the project → Settings → Environment Variables.
+2. Add `GEMINI_API_KEY` with your key from Google AI Studio. Tick Production, Preview and Development, then save.
+3. Go to Deployments, open the menu (⋯) on the latest one and choose Redeploy, so the key is picked up.
 
-GitHub Pages serves over HTTPS, which browsers require for microphone access.
+Optional variables:
+- `GEMINI_VOICE`: another Gemini voice name (default `Charon`)
+- `GEMINI_STYLE`: how James should sound, as an instruction (set to `none` to turn it off)
+- `GEMINI_TTS_MODEL`: Gemini model(s) to use, comma-separated, tried in order
 
-## Notes
-- Speaking to James works in Chrome, Edge and Safari. Firefox visitors can type.
-- The voice comes from the visitor's device. James picks the best male US English voice it finds (Microsoft Andrew/Guy in Edge, Aaron/Fred on Apple devices, David on Windows) and lowers the pitch. Visitors can change it with the Voice menu at the bottom of the page.
-- The phone number is left out by default because the page is public. To include it, fill in `phone` in `PROFILE` in `script.js`.
+Each answer is recorded by Gemini once and then cached by Vercel, so the free tier goes a long way. When you change an answer's text, only that answer is recorded again.
+
+## Never put the API key in the code
+The key belongs only in Vercel's Environment Variables. Anything in `index.html`, `script.js` or `answers.js` is public.
